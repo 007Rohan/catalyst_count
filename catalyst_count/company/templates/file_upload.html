@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    #progress {
+        display: none;
+        width: 100%;
+        background-color: #f3f3f3;
+    }
+    #progress-bar {
+        width: 0;
+        height: 30px;
+        background-color: #4caf50;
+    }
+</style>
+<h1>Upload File</h1>
+<form id="upload-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn" type="submit">Upload</button>
+</form>
+<div id="progress-container" style="display:none;">
+    <div id="progress-bar-container" style="width: 100%; background-color: #f3f3f3; border-radius: 5px;">
+        <div id="progress-bar" style="width: 0%; height: 20px; background-color: green; border-radius: 5px;"></div>
+    </div>
+    <span id="progress-text"></span>
+</div>
+<script>
+    document.getElementById('upload-form').onsubmit = function(e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+        fetch('{% url "file_upload" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.task_id) {
+                checkProgress(data.task_id);
+            }
+        });
+    };
+
+    function checkProgress(taskId) {
+        document.getElementById('progress-container').style.display = 'block';
+        
+        var interval = setInterval(function() {
+            fetch(`/company/progress/${taskId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'PROGRESS' || data.status === "PENDING") {
+                    let progressBar = document.getElementById('progress-bar');
+                    let progressText = document.getElementById('progress-text');
+                    let percent = data.total > 0 ? (data.current / data.total) * 100 : 0;
+                    progressBar.style.width = percent + '%';
+                    progressText.innerText = `${data.current} of ${data.total} processed (${Math.round(percent)}%)`;
+                } else if (data.status === 'SUCCESS') {
+                    clearInterval(interval);
+                    document.getElementById('progress-text').innerText = 'Upload complete!';
+                } else {
+                    clearInterval(interval);
+                    document.getElementById('progress-text').innerText = 'Upload failed.';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching progress:', error);
+                clearInterval(interval);
+                document.getElementById('progress-text').innerText = 'Error fetching progress.';
+            });
+        }, 1000);
+    }    
+</script>
+{% endblock %}

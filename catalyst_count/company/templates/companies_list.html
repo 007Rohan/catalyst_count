@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Companies List</h2>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Comapny Name</th>
+          <th>Domain</th>
+          <th>Linkedn Url</th>
+          <th>Year Founded</th>
+          <th>Industry</th>
+          <th>Country</th>
+          <th>State</th>
+          <th>City</th>
+          <th>Current Employee Count</th>
+          <th>Total Employee Count</th>
+          <th>Comapany Size</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for company in companies %}
+          <tr>
+            <td>{{ company.id }}</td>
+            <td>{{ company.name }}</td>
+            <td>{{ company.domain }}</td>
+            <td>{{ company.linkedn_url }}</td>
+            <td>{{ company.year_founded | default:"N/A"}}</td>
+            <td>{{ company.industry }}</td>
+            <td>{{ company.country_name | default:"N/A"}}</td>
+            <td>{{ company.state_name | default:"N/A"}}</td>
+            <td>{{ company.city_name | default:"N/A"}}</td>
+            <td>{{ company.current_employee_count }}</td>
+            <td>{{ company.total_employee_count }}</td>
+            <td>{{ company.size_range }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="12">No companies to display. Please apply filters to see results.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
