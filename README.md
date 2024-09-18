@@ -37,6 +37,10 @@
 ```cmd
    python manage.py migrate
    ```
+- create a new superuser
+```cmd
+   python manage.py createsuperuser
+   ```
 - start a development server using 
 ```cmd
    python manage.py runserver
